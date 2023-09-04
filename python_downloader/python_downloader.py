@@ -1,5 +1,6 @@
 """Main module."""
 import requests
+import argparse
 import os
 import sys
 import urllib
@@ -9,11 +10,15 @@ from bs4 import BeautifulSoup
 
 
 def main():
-    url = 'https://ourtv.online/series/mr-robot/'
-    download_url(url)
+    parser = argparse.ArgumentParser()
+    parser.add_argument('url', help='The URL to download')
+    args = parser.parse_args()
+
+    url = args.url
+    download_domain(url)
 
 
-def download_url(url):
+def download_domain(url):
     domain = get_domain_from_url(url)
     print(domain)
     if not os.path.exists(domain):
@@ -93,10 +98,12 @@ def deal_with_tag_img(soup, domain):
         if base_name is None:
             continue
 
+        # if the file is already present, next
+        if os.path.isfile(f'{domain}/img/{base_name}'):
+            continue
+        print(src)
         # download the image
-        if not os.path.isfile(f'{domain}/img/{base_name}'):
-            urllib.request.urlretrieve(src, f'{domain}/img/{base_name}')
-        #print(src, base_name)
+        urllib.request.urlretrieve(src, f'{domain}/img/{base_name}')
 
         # update the image with the new file
         img['src'] = f'./img/{base_name}'
@@ -105,7 +112,6 @@ def deal_with_tag_img(soup, domain):
 def deal_with_scripts(soup):
     scripts = soup.find_all('script')
     for script in scripts:
-        # print(script.get_text())
         script.decompose()
 
 

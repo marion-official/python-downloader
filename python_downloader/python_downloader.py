@@ -88,8 +88,13 @@ def deal_with_tag_img(soup, domain):
     for img in imgs:
         src = img.get('src')
 
+        # make sure we have a src
         if src is None:
             continue
+
+        # if the src is relative make it absolute
+        if src.startswith('/'):
+            src = "https://" + domain + src
 
         # take the name of the file
         base_name = get_basename_from_url(src)

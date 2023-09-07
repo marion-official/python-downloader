@@ -55,27 +55,32 @@ def deal_with_tag_links(soup, domain):
     """
     links = soup.find_all('link')
     for link in links:
-        # print(link.get('href'))
+        href = link.get('href')
         # print(link.get('rel'))
+        # print(href)
 
         # if the link tag is a CSS file
         if "stylesheet" in link.get('rel'):
             # print("CSS")
 
             # take the name of the file
-            base_name = get_basename_from_url(link.get('href'))
+            base_name = get_basename_from_url(href)
 
             # if there is no basename, next
             if base_name is None:
                 continue
 
+            if href.startswith('/'):
+                href = "https://" + domain + href
+
             # if the file already exists, next
             if os.path.isfile(f'{domain}/css/{base_name}'):
                 continue
 
+            # print(href)
             # download the file
             with open(f'{domain}/css/{base_name}', 'w') as css_file:
-                response = requests.get(link.get('href'))
+                response = requests.get(href)
                 css_file.write(str(response.content))
                 css_file.close()
 
@@ -106,7 +111,7 @@ def deal_with_tag_img(soup, domain):
         # if the file is already present, next
         if os.path.isfile(f'{domain}/img/{base_name}'):
             continue
-        print(src)
+        # print(src)
         # download the image
         urllib.request.urlretrieve(src, f'{domain}/img/{base_name}')
 

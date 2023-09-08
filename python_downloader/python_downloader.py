@@ -21,15 +21,25 @@ def main():
 def download_domain(url):
     domain = get_domain_from_url(url)
     print(domain)
-    if not os.path.exists(domain):
-        os.mkdir(domain)
-        os.mkdir(f'{domain}/css')
-        os.mkdir(f'{domain}/img')
+
+    # create dir
+    domain_dir = os.path.join(os.getcwd(), domain)
+    css_dir = os.path.join(domain_dir, 'css')
+    img_dir = os.path.join(domain_dir, 'img')
+
+    os.makedirs(css_dir, exist_ok=True)
+    os.makedirs(img_dir, exist_ok=True)
+
+    # download the HTML and parse it
     response = requests.get(url)
     soup = BeautifulSoup(response.content, 'html.parser')
+
+    # download files and change tags 
     deal_with_tag_img(soup, domain)
     deal_with_tag_links(soup, domain)
     deal_with_scripts(soup)
+
+    # write the HTML modified
     with open(f'{domain}/index.html', 'w') as index_file:
         index_file.write(soup.prettify())
 

@@ -1,12 +1,13 @@
-"""Main module."""
+from bs4 import BeautifulSoup
 import requests
+
 import argparse
 import os
 import sys
 import urllib
 from urllib.parse import urlparse
 
-from bs4 import BeautifulSoup
+
 
 
 def main():
@@ -34,7 +35,7 @@ def download_domain(url):
     response = requests.get(url)
     soup = BeautifulSoup(response.content, 'html.parser')
 
-    # download files and change tags 
+    # download files and change tags
     deal_with_tag_img(soup, domain)
     deal_with_tag_links(soup, domain)
     deal_with_scripts(soup)
@@ -44,17 +45,13 @@ def download_domain(url):
         index_file.write(soup.prettify())
 
 
-def get_basename_from_url(url=None):
-    if url is None:
-        return None
+def get_basename_from_url(url):
     parsed_url = urlparse(url)
     url_path = parsed_url.path
     return os.path.basename(url_path)
 
 
-def get_domain_from_url(url=None):
-    if url is None:
-        return None
+def get_domain_from_url(url):
     parsed_url = urlparse(url)
     return parsed_url.netloc
 

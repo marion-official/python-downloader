@@ -4,10 +4,8 @@ import requests
 import argparse
 import os
 import sys
-import urllib
-from urllib.parse import urlparse
-
-
+from urllib.request import urlretrieve
+from urllib.parse import urlparse, urljoin
 
 
 def main():
@@ -60,39 +58,36 @@ def deal_with_tag_links(soup, domain):
     """
     Dealing with link tags, for CSS only for now
     """
-    links = soup.find_all('link')
+    links = soup.find_all('link', rel='stylesheet')
     for link in links:
         href = link.get('href')
         # print(link.get('rel'))
         # print(href)
 
-        # if the link tag is a CSS file
-        if "stylesheet" in link.get('rel'):
+        if href:
             # print("CSS")
 
             # take the name of the file
             base_name = get_basename_from_url(href)
 
             # if there is no basename, next
-            if base_name is None:
-                continue
+            if base_name:
+                if href.startswith('/'):
+                    href = urljoin(f'https://{domain}', href)
 
-            if href.startswith('/'):
-                href = "https://" + domain + href
+                # if the file already exists, next
+                if os.path.isfile(f'{domain}/css/{base_name}'):
+                    continue
 
-            # if the file already exists, next
-            if os.path.isfile(f'{domain}/css/{base_name}'):
-                continue
+                # print(href)
+                # download the file
+                with open(f'{domain}/css/{base_name}', 'w') as css_file:
+                    response = requests.get(href)
+                    css_file.write(str(response.content))
+                    css_file.close()
 
-            # print(href)
-            # download the file
-            with open(f'{domain}/css/{base_name}', 'w') as css_file:
-                response = requests.get(href)
-                css_file.write(str(response.content))
-                css_file.close()
-
-            # update link tag to the new file
-            link['href'] = f'./css/{base_name}'
+                # update link tag to the new file
+                link['href'] = f'./css/{base_name}'
 
 
 def deal_with_tag_img(soup, domain):
@@ -120,7 +115,7 @@ def deal_with_tag_img(soup, domain):
             continue
         # print(src)
         # download the image
-        urllib.request.urlretrieve(src, f'{domain}/img/{base_name}')
+        urlretrieve(src, f'{domain}/img/{base_name}')
 
         # update the image with the new file
         img['src'] = f'./img/{base_name}'

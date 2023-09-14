@@ -79,12 +79,10 @@ def deal_with_tag_links(soup, domain):
                 if os.path.isfile(f'{domain}/css/{base_name}'):
                     continue
 
-                # print(href)
                 # download the file
-                with open(f'{domain}/css/{base_name}', 'w') as css_file:
+                with open(f'{domain}/css/{base_name}', 'wb') as css_file:
                     response = requests.get(href)
-                    css_file.write(str(response.content))
-                    css_file.close()
+                    css_file.write(response.content)
 
                 # update link tag to the new file
                 link['href'] = f'./css/{base_name}'

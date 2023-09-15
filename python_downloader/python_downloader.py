@@ -94,29 +94,25 @@ def deal_with_tag_img(soup, domain):
         src = img.get('src')
 
         # make sure we have a src
-        if src is None:
-            continue
+        if src:
+            # take the name of the file
+            base_name = get_basename_from_url(src)
 
-        # if the src is relative make it absolute
-        if src.startswith('/'):
-            src = "https://" + domain + src
+            # if there is no basename, next
+            if base_name:
+                # if the src is relative make it absolute
+                if src.startswith('/'):
+                    src = urljoin(f'https://{domain}', src)
 
-        # take the name of the file
-        base_name = get_basename_from_url(src)
+                # if the file is already present, next
+                if os.path.isfile(f'{domain}/img/{base_name}'):
+                    continue
 
-        # if there is no basename, next
-        if base_name is None:
-            continue
+                # download the image
+                urlretrieve(src, f'{domain}/img/{base_name}')
 
-        # if the file is already present, next
-        if os.path.isfile(f'{domain}/img/{base_name}'):
-            continue
-        # print(src)
-        # download the image
-        urlretrieve(src, f'{domain}/img/{base_name}')
-
-        # update the image with the new file
-        img['src'] = f'./img/{base_name}'
+                # update the image with the new file
+                img['src'] = f'./img/{base_name}'
 
 
 def deal_with_scripts(soup):

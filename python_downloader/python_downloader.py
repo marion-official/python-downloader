@@ -75,14 +75,11 @@ def deal_with_tag_links(soup, domain):
                 if href.startswith('/'):
                     href = urljoin(f'https://{domain}', href)
 
-                # if the file already exists, next
+                # if the file is not already exists, download it
                 if os.path.isfile(f'{domain}/css/{base_name}'):
-                    continue
-
-                # download the file
-                with open(f'{domain}/css/{base_name}', 'wb') as css_file:
                     response = requests.get(href)
-                    css_file.write(response.content)
+                    with open(f'{domain}/css/{base_name}', 'wb') as css_file:
+                        css_file.write(response.content)
 
                 # update link tag to the new file
                 link['href'] = f'./css/{base_name}'
@@ -104,12 +101,9 @@ def deal_with_tag_img(soup, domain):
                 if src.startswith('/'):
                     src = urljoin(f'https://{domain}', src)
 
-                # if the file is already present, next
-                if os.path.isfile(f'{domain}/img/{base_name}'):
-                    continue
-
-                # download the image
-                urlretrieve(src, f'{domain}/img/{base_name}')
+                # if the file not already present, download it
+                if not os.path.isfile(f'{domain}/img/{base_name}'):
+                    urlretrieve(src, f'{domain}/img/{base_name}')
 
                 # update the image with the new file
                 img['src'] = f'./img/{base_name}'

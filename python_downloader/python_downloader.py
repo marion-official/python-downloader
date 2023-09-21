@@ -18,6 +18,9 @@ def main():
 
 
 def download_domain(url):
+    """
+    Download HTML, CSS, and images from a website and update links.
+    """
     domain = get_domain_from_url(url)
     print(domain)
 
@@ -44,29 +47,31 @@ def download_domain(url):
 
 
 def get_basename_from_url(url):
+    """
+    Get the base name (file name) from a URL.
+    """
     parsed_url = urlparse(url)
     url_path = parsed_url.path
     return os.path.basename(url_path)
 
 
 def get_domain_from_url(url):
+    """
+    Get the domain (netloc) from a URL.
+    """
     parsed_url = urlparse(url)
     return parsed_url.netloc
 
 
 def deal_with_tag_links(soup, domain):
     """
-    Dealing with link tags, for CSS only for now
+    Process link tags (for CSS)
     """
     links = soup.find_all('link', rel='stylesheet')
     for link in links:
         href = link.get('href')
-        # print(link.get('rel'))
-        # print(href)
 
         if href:
-            # print("CSS")
-
             # take the name of the file
             base_name = get_basename_from_url(href)
 
@@ -86,6 +91,9 @@ def deal_with_tag_links(soup, domain):
 
 
 def deal_with_tag_img(soup, domain):
+    """
+    Process img tags (for images).
+    """
     imgs = soup.find_all('img')
     for img in imgs:
         src = img.get('src')
@@ -110,6 +118,9 @@ def deal_with_tag_img(soup, domain):
 
 
 def deal_with_scripts(soup):
+    """
+    Remove script tags from the HTML.
+    """
     scripts = soup.find_all('script')
     for script in scripts:
         script.decompose()

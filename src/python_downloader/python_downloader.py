@@ -8,6 +8,7 @@ from urllib.request import urlretrieve
 from urllib.parse import urlparse, urljoin
 
 from general_download.general_page_downloader import GeneralPageDownloader
+from utils import get_basename_from_url
 
 
 def main() -> None:
@@ -27,8 +28,8 @@ def download_domain(url: str) -> None:
     domain = home_page.get_domain()
     print(domain)
 
-    # create dir
-    domain_dir = os.path.join(os.getcwd(), domain)
+    # create dirs
+    domain_dir = os.path.join(os.getcwd(), 'output', domain)
     css_dir = os.path.join(domain_dir, 'css')
     img_dir = os.path.join(domain_dir, 'img')
 
@@ -36,8 +37,7 @@ def download_domain(url: str) -> None:
     os.makedirs(img_dir, exist_ok=True)
 
     # download the HTML and parse it
-    response = requests.get(url)
-    soup = BeautifulSoup(response.content, 'html.parser')
+    soup = home_page.download_html()
 
     # download files and change tags
     deal_with_tag_img(soup, domain)
@@ -45,17 +45,8 @@ def download_domain(url: str) -> None:
     deal_with_scripts(soup)
 
     # write the HTML modified
-    with open(f'{domain}/index.html', 'w') as index_file:
+    with open(f'output/{domain}/index.html', 'w') as index_file:
         index_file.write(soup.prettify())
-
-
-def get_basename_from_url(url):
-    """
-    Get the base name (file name) from a URL.
-    """
-    parsed_url = urlparse(url)
-    url_path = parsed_url.path
-    return os.path.basename(url_path)
 
 
 def deal_with_tag_links(soup, domain):
@@ -76,9 +67,9 @@ def deal_with_tag_links(soup, domain):
                     href = urljoin(f'https://{domain}', href)
 
                 # if the file is not already exists, download it
-                if os.path.isfile(f'{domain}/css/{base_name}'):
+                if os.path.isfile(f'output/{domain}/css/{base_name}'):
                     response = requests.get(href)
-                    with open(f'{domain}/css/{base_name}', 'wb') as css_file:
+                    with open(f'output/{domain}/css/{base_name}', 'wb') as css_file:
                         css_file.write(response.content)
 
                 # update link tag to the new file
@@ -105,8 +96,8 @@ def deal_with_tag_img(soup, domain):
                     src = urljoin(f'https://{domain}', src)
 
                 # if the file not already present, download it
-                if not os.path.isfile(f'{domain}/img/{base_name}'):
-                    urlretrieve(src, f'{domain}/img/{base_name}')
+                if not os.path.isfile(f'output/{domain}/img/{base_name}'):
+                    urlretrieve(src, f'output/{domain}/img/{base_name}')
 
                 # update the image with the new file
                 img['src'] = f'./img/{base_name}'

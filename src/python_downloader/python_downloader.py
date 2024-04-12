@@ -7,21 +7,24 @@ import sys
 from urllib.request import urlretrieve
 from urllib.parse import urlparse, urljoin
 
+from general_download.general_page_downloader import GeneralPageDownloader
 
-def main():
+
+def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument('url', help='The URL to download')
     args = parser.parse_args()
 
-    url = args.url
+    url: str = args.url
     download_domain(url)
 
 
-def download_domain(url):
+def download_domain(url: str) -> None:
     """
     Download HTML, CSS, and images from a website and update links.
     """
-    domain = get_domain_from_url(url)
+    home_page = GeneralPageDownloader(url)
+    domain = home_page.get_domain()
     print(domain)
 
     # create dir
@@ -53,14 +56,6 @@ def get_basename_from_url(url):
     parsed_url = urlparse(url)
     url_path = parsed_url.path
     return os.path.basename(url_path)
-
-
-def get_domain_from_url(url):
-    """
-    Get the domain (netloc) from a URL.
-    """
-    parsed_url = urlparse(url)
-    return parsed_url.netloc
 
 
 def deal_with_tag_links(soup, domain):

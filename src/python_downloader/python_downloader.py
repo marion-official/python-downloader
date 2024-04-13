@@ -40,76 +40,13 @@ def download_domain(url: str) -> None:
     soup = home_page.download_html()
 
     # download files and change tags
-    deal_with_tag_img(soup, domain)
-    deal_with_tag_links(soup, domain)
-    deal_with_scripts(soup)
+    home_page.deal_with_tag_img()
+    home_page.deal_with_tag_links()
+    home_page.deal_with_scripts()
 
     # write the HTML modified
     with open(f'output/{domain}/index.html', 'w') as index_file:
         index_file.write(soup.prettify())
-
-
-def deal_with_tag_links(soup, domain):
-    """
-    Process link tags (for CSS)
-    """
-    links = soup.find_all('link', rel='stylesheet')
-    for link in links:
-        href = link.get('href')
-
-        if href:
-            # take the name of the file
-            base_name = get_basename_from_url(href)
-
-            # if there is no basename, next
-            if base_name:
-                if href.startswith('/'):
-                    href = urljoin(f'https://{domain}', href)
-
-                # if the file is not already exists, download it
-                if os.path.isfile(f'output/{domain}/css/{base_name}'):
-                    response = requests.get(href)
-                    with open(f'output/{domain}/css/{base_name}', 'wb') as css_file:
-                        css_file.write(response.content)
-
-                # update link tag to the new file
-                link['href'] = f'./css/{base_name}'
-
-
-def deal_with_tag_img(soup, domain):
-    """
-    Process img tags (for images).
-    """
-    imgs = soup.find_all('img')
-    for img in imgs:
-        src = img.get('src')
-
-        # make sure we have a src
-        if src:
-            # take the name of the file
-            base_name = get_basename_from_url(src)
-
-            # if there is no basename, next
-            if base_name:
-                # if the src is relative make it absolute
-                if src.startswith('/'):
-                    src = urljoin(f'https://{domain}', src)
-
-                # if the file not already present, download it
-                if not os.path.isfile(f'output/{domain}/img/{base_name}'):
-                    urlretrieve(src, f'output/{domain}/img/{base_name}')
-
-                # update the image with the new file
-                img['src'] = f'./img/{base_name}'
-
-
-def deal_with_scripts(soup):
-    """
-    Remove script tags from the HTML.
-    """
-    scripts = soup.find_all('script')
-    for script in scripts:
-        script.decompose()
 
 
 if __name__ == "__main__":

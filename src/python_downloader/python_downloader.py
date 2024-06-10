@@ -17,6 +17,7 @@ def main() -> None:
     args = parser.parse_args()
 
     url: str = args.url
+    print(f"Downloading: {url}")
     download_domain(url)
 
 

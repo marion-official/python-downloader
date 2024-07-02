@@ -1,11 +1,68 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>This is a one-page website!</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculator</title>
+    <style>
+        #calculator {
+            width: 250px;
+            margin: 100px auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .button {
+            width: 40px;
+            height: 40px;
+            margin: 5px;
+        }
+    </style>
 </head>
 <body>
-    <h1>This is a one-page website </h1>
-    <img src="{{ url_for('static', filename='1/img.jpg') }}" alt="Image from dir1">
-    <img src="{{ url_for('static', filename='2/img.jpg') }}" alt="Image from dir2">
+    <div id="calculator">
+        <input type="text" id="display" readonly>
+        <br>
+        <img src="/static/7/img.png" class="button" onclick="appendToDisplay('7')">
+        <img src="/static/8/img.png" class="button" onclick="appendToDisplay('8')">
+        <img src="/static/9/img.png" class="button" onclick="appendToDisplay('9')">
+        <img src="/static/divide.png" class="button" onclick="appendToDisplay('/')">
+        <br>
+        <img src="/static/4/img.png" class="button" onclick="appendToDisplay('4')">
+        <img src="/static/5/img.png" class="button" onclick="appendToDisplay('5')">
+        <img src="/static/6/img.png" class="button" onclick="appendToDisplay('6')">
+        <img src="/static/multiplied-by.png" class="button" onclick="appendToDisplay('*')">
+        <br>
+        <img src="/static/1/img.png" class="button" onclick="appendToDisplay('1')">
+        <img src="/static/2/img.png" class="button" onclick="appendToDisplay('2')">
+        <img src="/static/3/img.png" class="button" onclick="appendToDisplay('3')">
+        <img src="/static/minus (1).png" class="button" onclick="appendToDisplay('-')">
+        <br>
+        <img src="/static/0/img.png" class="button" onclick="appendToDisplay('0')">
+        <img src="/static/equal.png" class="button" onclick="calculateResult()">
+        <img src="/static/add.png" class="button" onclick="appendToDisplay('+')">
+    </div>
+
+    <script>
+        function appendToDisplay(value) {
+            document.getElementById('display').value += value;
+        }
+
+        function calculateResult() {
+            const expression = document.getElementById('display').value;
+            fetch('/calculate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: `expression=${encodeURIComponent(expression)}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('display').value = data.result;
+            });
+        }
+    </script>
 </body>
 </html>

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import os
 from urllib.request import urlretrieve
 from bs4 import BeautifulSoup
@@ -18,6 +20,7 @@ class GeneralPageDownloader:
         self.__domain: str | None = None
         self.__html_response = None
         self.__soap = None
+        self.__scheme: str | None = None
         self.parse_url()
 
     def parse_url(self) -> None:
@@ -27,6 +30,7 @@ class GeneralPageDownloader:
         This method is intended for internal use within the class.
         """
         self.__domain = self.__url_parsed.netloc
+        self.__scheme = self.__url_parsed.scheme
 
     def get_domain(self) -> str:
         return self.__domain
@@ -47,23 +51,29 @@ class GeneralPageDownloader:
         for img in imgs:
             src = img.get('src')
 
-            # make sure we have a src
-            if src:
-                # take the name of the file
-                base_name = get_basename_from_url(src)
+            # if the image has no src attribute, just ignore it
+            if not src:
+                continue
 
-                # if there is no basename, next
-                if base_name:
-                    # if the src is relative make it absolute
-                    if src.startswith('/'):
-                        src = urljoin(f'https://{self.__domain}', src)
+            print(f"Downloading {src}")
+            # take the name of the file
+            base_name = get_basename_from_url(src)
 
-                    # if the file not already present, download it
-                    if not os.path.isfile(f'output/{self.__domain}/img/{base_name}'):
-                        urlretrieve(src, f'output/{self.__domain}/img/{base_name}')
+            # if there is no basename, next
+            if not base_name:
+                continue
 
-                    # update the image with the new file
-                    img['src'] = f'./img/{base_name}'
+            # if the src is relative make it absolute
+            if src.startswith('/'): #TODO
+                src = urljoin(f'{self.__scheme}://{self.__domain}', src)
+                print(f"It was an relative url, modified to {src}")
+
+            # if the file not already present, download it
+            if not os.path.isfile(f'output/{self.__domain}/img/{base_name}'):
+                urlretrieve(src, f'output/{self.__domain}/img/{base_name}')
+
+            # update the image with the new file
+            img['src'] = f'./img/{base_name}'
 
     def deal_with_tag_links(self):
         """

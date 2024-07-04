@@ -27,9 +27,10 @@ def download_domain(url: str) -> None:
     """
     home_page = GeneralPageDownloader(url)
     domain = home_page.get_domain()
-    print(domain)
+    print(f"Working on the domain:  {domain}")
 
     # create dirs
+    print("Creating directories")
     domain_dir = os.path.join(os.getcwd(), 'output', domain)
     css_dir = os.path.join(domain_dir, 'css')
     img_dir = os.path.join(domain_dir, 'img')
@@ -38,12 +39,14 @@ def download_domain(url: str) -> None:
     os.makedirs(img_dir, exist_ok=True)
 
     # download the HTML and parse it
+    print("download the HTML")
     soup = home_page.download_html()
 
     # download files and change tags
+    print("deal with IMGs")
     home_page.deal_with_tag_img()
     home_page.deal_with_tag_links()
-    home_page.deal_with_scripts()
+    # home_page.deal_with_scripts()
 
     # write the HTML modified
     with open(f'output/{domain}/index.html', 'w') as index_file:

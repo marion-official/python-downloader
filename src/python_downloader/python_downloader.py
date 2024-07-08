@@ -46,7 +46,7 @@ def download_domain(url: str) -> None:
     print("deal with IMGs")
     home_page.deal_with_tag_img()
     home_page.deal_with_tag_links()
-    # home_page.deal_with_scripts()
+    home_page.deal_with_scripts()
 
     # write the HTML modified
     with open(f'output/{domain}/index.html', 'w') as index_file:

@@ -6,7 +6,7 @@ from bs4 import BeautifulSoup
 import requests
 from urllib.parse import urlparse, urljoin
 
-from utils import get_basename_from_url
+from utils import get_basename_from_url, sanitize_url
 
 
 class GeneralPageDownloader:
@@ -51,22 +51,26 @@ class GeneralPageDownloader:
         for img in imgs:
             src = img.get('src')
 
-            # if the image has no src attribute, just ignore it
+            # If the image has no src attribute, just ignore it
             if not src:
                 continue
 
             print(f"Downloading {src}")
-            # take the name of the file
+
+            # Take the name of the file
             base_name = get_basename_from_url(src)
 
-            # if there is no basename, next
+            # If there is no basename, next
             if not base_name:
                 continue
 
-            # if the src is relative make it absolute
-            if src.startswith('/'): #TODO
+            # If the src is relative make it absolute
+            if src.startswith('/'):
                 src = urljoin(f'{self.__scheme}://{self.__domain}', src)
                 print(f"It was an relative url, modified to {src}")
+
+            # Sanitize the URL
+            src = sanitize_url(src)
 
             # if the file not already present, download it
             if not os.path.isfile(f'output/{self.__domain}/img/{base_name}'):

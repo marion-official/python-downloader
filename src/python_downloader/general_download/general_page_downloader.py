@@ -6,7 +6,7 @@ from bs4 import BeautifulSoup
 import requests
 from urllib.parse import urlparse, urljoin
 
-from utils import get_basename_from_url, sanitize_url
+from utils import get_basename_from_url, sanitize_url, download_file
 
 
 class GeneralPageDownloader:
@@ -72,12 +72,10 @@ class GeneralPageDownloader:
             # Sanitize the URL
             src = sanitize_url(src)
 
-            # if the file not already present, download it
-            if not os.path.isfile(f'output/{self.__domain}/img/{base_name}'):
-                urlretrieve(src, f'output/{self.__domain}/img/{base_name}')
+            file_name = download_file(src, base_name, self.__domain, "img")
 
             # update the image with the new file
-            img['src'] = f'./img/{base_name}'
+            img['src'] = f'./img/{file_name}'
 
     def deal_with_tag_links(self):
         """

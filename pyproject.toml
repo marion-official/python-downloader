@@ -1,0 +1,18 @@
+[project]
+name = "python-downloader"
+version = "0.0.1"
+authors = [
+  { name="Mario Nugnes", email="mario.nugnes1@gmail.com" },
+]
+description = "A tool to help you download an entire website, sorting files in the local directories, img, css, etc.."
+readme = "README.rst"
+requires-python = ">=3.9"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: GNU General Public License",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+Homepage = "https://github.com/marion-official/python-downloader"
+Issues = "https://github.com/marion-official/python-downloader/issues"

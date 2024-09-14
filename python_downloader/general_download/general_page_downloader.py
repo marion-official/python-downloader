@@ -1,25 +1,24 @@
 from __future__ import annotations
 
-import os
-from urllib.request import urlretrieve
+from urllib.parse import urlparse, urljoin
 from bs4 import BeautifulSoup
 import requests
-from urllib.parse import urlparse, urljoin
+import os
 
-from utils import get_basename_from_url, sanitize_url, download_file
+from utils import get_basename_from_url, sanitize_url, download_file, URLInfo
 
 
 class GeneralPageDownloader:
     """
-    This class is for downloading a generic page
+    This class is dedicated to download a generic, single page
     """
-
-    def __init__(self, url: str) -> None:
-        self.__url: str = url
-        self.__url_parsed = urlparse(url)
-        self.__domain: str | None = None
+    def __init__(self, url_info: URLInfo) -> None:
+        self.__url_info: URLInfo = url_info
+        self.__url: str = url_info.url
+        self.__url_parsed = urlparse(self.__url)
         self.__html_response = None
         self.__soap = None
+        self.__domain: str | None = None
         self.__scheme: str | None = None
         self.parse_url()
 
@@ -39,7 +38,7 @@ class GeneralPageDownloader:
         """
         This method is to download the html and process it
         """
-        self.__html_response = requests.get(self.__url)
+        self.__html_response = requests.get(self.__url_parsed.geturl())
         self.__soap = BeautifulSoup(self.__html_response.content, 'html.parser')
         return self.__soap
 
@@ -110,3 +109,43 @@ class GeneralPageDownloader:
         scripts = self.__soap.find_all('script')
         for script in scripts:
             script.decompose()
+
+    def get_links_in_domain(self) -> dict[str, URLInfo]:
+        """
+        obtain the list of links in the page pointing to in the same domain
+        """
+        results: dict[str, URLInfo] = {}
+
+        links = self.__soap.find_all('a')
+        for link in links:
+            href = link.get('href')
+
+            # if there is no link, skip it
+            if not href or href == "#":
+                continue
+
+            # If the src is relative make it absolute
+            if href.startswith("/"):
+                href = urljoin(f'{self.__scheme}://{self.__domain}', href)
+
+            if href not in results:
+                results[href] = URLInfo(href)
+
+        return results
+
+    def write_html(self) -> None:
+        """
+        Write the html page on disk
+        """
+
+        file_name = f'output/{self.__domain}/page.html'
+
+        # if we have already a local address, use it
+        if self.__url_info.local_url:
+            file_name = self.__url_info.local_url
+        else:
+            # else find one
+            file_name = self.__url_info.get_local_url()
+
+        with open(file_name, 'w') as index_file:
+            index_file.write(self.__soap.prettify())

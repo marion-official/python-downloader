@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 import os
+from dataclasses import dataclass
 
 from urllib.parse import urlparse,urlunparse, quote
 from urllib.request import urlretrieve
@@ -99,3 +102,35 @@ def find_version_from_file(file_name: str) -> int:
         return int(match.group(1))
     # if we don't have one, start from 0
     return 0
+
+@dataclass
+class URLInfo:
+    """
+    Dataclass dedicated to the single page URL to download
+    """
+    url: str
+    downloaded: bool = False
+    local_url: None|str = None
+
+    def set_as_downloaded(self, downloaded: bool = True):
+        self.downloaded = downloaded
+
+
+    def get_local_url(self) -> str:
+        """
+        Find the name of the file by the url
+        """
+        # if we have already the url, use it
+        if self.local_url:
+            return self.local_url
+
+        # Parse the URL
+        scheme, netloc, path, params, query, fragments = urlparse(self.url)
+
+        if path:
+            path_split = path.split("/")
+            return  f'output/{netloc}/{path_split[-1]}.html'
+
+        raise NotImplementedError(f"Still need to implement the case where {urlparse(self.url)}")
+
+        return f'output/{netloc}/page.html'

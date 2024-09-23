@@ -7,11 +7,15 @@ python-downloader
 
 
 
-A tool to help you download an entire website, sorting files in the local directories, img, css, etc..
+A tool to help you download an entire website, or part of it, and organize the downloaded content
+(images, HTML, videos, CSS, etc.) into separate directories.
 
 
-* Free software: GNU General Public License v3
-
+Features:
+--------
+* Download an entire website or part of it.
+* Automatically sort and save content into different folders (images, HTML, videos, CSS, etc.).
+* Handle files with duplicate names.
 
 Usage
 --------
@@ -23,3 +27,12 @@ then clone the repo and from inside the project:
 To download a website, for example http://127.0.0.1:5000 run:
 pipenv run python python_downloader/python_downloader.py http://127.0.0.1:5000
 
+
+
+Contributing
+-------------
+Contributions are welcome! Please open an issue or submit a pull request.
+
+License
+-------
+This project is licensed under the GNU General Public License v3 - see the LICENSE file for details.

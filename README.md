@@ -25,7 +25,9 @@ then clone the repo and from inside the project:
 
 
 To download a website, for example http://127.0.0.1:5000 run:
-pipenv run python python_downloader/python_downloader.py http://127.0.0.1:5000
+```shell
+pipenv run python app.py http://127.0.0.1:5000
+```
 
 
 

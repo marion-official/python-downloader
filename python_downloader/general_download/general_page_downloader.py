@@ -5,7 +5,7 @@ from bs4 import BeautifulSoup
 import requests
 import os
 
-from utils import get_basename_from_url, sanitize_url, download_file, URLInfo
+from python_downloader.utils import get_basename_from_url, sanitize_url, download_file, URLInfo
 
 
 class GeneralPageDownloader:

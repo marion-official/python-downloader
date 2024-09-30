@@ -10,7 +10,7 @@ from hashlib import md5
 import re
 import requests
 
-from file import FileName
+from python_downloader.file import FileName
 
 
 def get_basename_from_url(url: str) -> str:

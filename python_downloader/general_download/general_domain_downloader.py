@@ -3,7 +3,7 @@ from __future__ import annotations
 import os
 
 from .general_page_downloader import GeneralPageDownloader
-from utils import URLInfo
+from python_downloader.utils import URLInfo
 
 
 class GeneralDomainDownloader:

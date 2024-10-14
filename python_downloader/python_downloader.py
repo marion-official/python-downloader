@@ -1,27 +1,31 @@
 from __future__ import annotations
 
 import argparse
-import sys
 from urllib.parse import urlparse
 
 from python_downloader.general_download import GeneralDomainDownloader
 
-# TODO set this in a conf file
 configs = {
     "depth_of_pages_to_download":  2
 }
 
-def download_domain(url: str) -> None:
+def download_domain(argv: list[str]) -> None:
     """
     Download HTML, CSS, and images from a website and update links.
     """
+    parser = argparse.ArgumentParser()
+    parser.add_argument("url")
+    parser.add_argument("-d", "--depth", default=2, type=int)
+    arguments = parser.parse_args(argv)
+
+    configs['depth_of_pages_to_download'] = arguments.depth
+    url:  str = arguments.url
     url_parsed = urlparse(url)
+
     home_page = GeneralDomainDownloader(url_parsed, configs)
     print(f"Working on the domain:  {url_parsed.netloc}")
 
-    # create dirs
     home_page.create_dir()
 
-    # download content
     home_page.download_content()
 

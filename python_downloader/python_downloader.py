@@ -13,7 +13,10 @@ def download_domain(argv: list[str]) -> None:
     """
     Download HTML, CSS, and images from a website and update links.
     """
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(description="""A tool to help you download an entire website,
+        or part of it, and organize the downloaded content (images, HTML, videos, CSS, etc.)
+        into separate directories.
+        """)
     parser.add_argument("url")
     parser.add_argument("-d", "--depth", default=2, type=int)
     arguments = parser.parse_args(argv)

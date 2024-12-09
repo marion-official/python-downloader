@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from urllib.error import HTTPError
 from urllib.parse import urlparse, urljoin
 from bs4 import BeautifulSoup
 import requests
@@ -12,6 +13,7 @@ class GeneralPageDownloader:
     """
     This class is dedicated to download a generic, single page
     """
+
     def __init__(self, url_info: URLInfo) -> None:
         self.__url_info: URLInfo = url_info
         self.__url: str = url_info.url
@@ -71,7 +73,11 @@ class GeneralPageDownloader:
             # Sanitize the URL
             src = sanitize_url(src)
 
-            file_name = download_file(src, base_name, self.__domain, "img")
+            try:
+                file_name = download_file(src, base_name, self.__domain, "img")
+            except HTTPError as e:
+                print(f"Error downloading {src} {e}")
+                continue
 
             # update the image with the new file
             img['src'] = f'./img/{file_name}'

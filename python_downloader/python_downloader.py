@@ -6,8 +6,9 @@ from urllib.parse import urlparse
 from python_downloader.general_download import GeneralDomainDownloader
 
 configs = {
-    "depth_of_pages_to_download":  2
+    "depth_of_pages_to_download": 2
 }
+
 
 def download_domain(argv: list[str]) -> None:
     """
@@ -22,7 +23,7 @@ def download_domain(argv: list[str]) -> None:
     arguments = parser.parse_args(argv)
 
     configs['depth_of_pages_to_download'] = arguments.depth
-    url:  str = arguments.url
+    url: str = arguments.url
     url_parsed = urlparse(url)
 
     home_page = GeneralDomainDownloader(url_parsed, configs)
@@ -31,4 +32,3 @@ def download_domain(argv: list[str]) -> None:
     home_page.create_dir()
 
     home_page.download_content()
-

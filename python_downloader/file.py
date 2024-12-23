@@ -6,9 +6,10 @@ class FileName:
     """
     the file written on disk
     """
+
     def __init__(self, file_name: str):
         """
-        Initialise the FileName object splitting the file name into base and extenstions
+        Initialise the FileName object splitting the file name into base and extensions
         """
 
         if not isinstance(file_name, str):

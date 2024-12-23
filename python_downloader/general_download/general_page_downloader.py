@@ -5,8 +5,11 @@ from urllib.parse import urlparse, urljoin
 from bs4 import BeautifulSoup
 import requests
 import os
+import logging
 
 from python_downloader.utils import get_basename_from_url, sanitize_url, download_file, URLInfo
+
+logger = logging.getLogger(__name__)
 
 
 class GeneralPageDownloader:
@@ -56,7 +59,7 @@ class GeneralPageDownloader:
             if not src:
                 continue
 
-            print(f"Downloading {src}")
+            logger.info(f"Downloading {src}")
 
             # Take the name of the file
             base_name = get_basename_from_url(src)
@@ -68,7 +71,7 @@ class GeneralPageDownloader:
             # If the src is relative make it absolute
             if src.startswith('/'):
                 src = urljoin(f'{self.__scheme}://{self.__domain}', src)
-                print(f"It was an relative url, modified to {src}")
+                logger.debug(f"It was an relative url, modified to {src}")
 
             # Sanitize the URL
             src = sanitize_url(src)
@@ -76,7 +79,7 @@ class GeneralPageDownloader:
             try:
                 file_name = download_file(src, base_name, self.__domain, "img")
             except HTTPError as e:
-                print(f"Error downloading {src} {e}")
+                logger.error(f"Error downloading {src} {e}")
                 continue
 
             # update the image with the new file

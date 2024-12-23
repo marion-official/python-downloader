@@ -2,8 +2,11 @@ from __future__ import annotations
 
 import argparse
 from urllib.parse import urlparse, ParseResult
+import logging
 
 from python_downloader.general_download import GeneralDomainDownloader
+
+logger = logging.getLogger(__name__)
 
 
 class PythonDownloader:
@@ -46,7 +49,8 @@ class PythonDownloader:
 
     def download_domain(self):
         home_page = GeneralDomainDownloader(self.url_parsed, self.configs)
-        print(f"Working on the domain:  {self.url_parsed.netloc}")
+        # print(f"Working on the domain:  {self.url_parsed.netloc}")
+        logger.info(f"Working on the domain:  {self.url_parsed.netloc}")
 
         home_page.create_dir()
 

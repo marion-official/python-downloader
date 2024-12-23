@@ -2,15 +2,16 @@ from __future__ import annotations
 
 import os
 from dataclasses import dataclass
-
-from urllib.parse import urlparse,urlunparse, quote
+import re
+import requests
+import logging
+from urllib.parse import urlparse, urlunparse, quote
 from urllib.request import urlretrieve
 from hashlib import md5
 
-import re
-import requests
-
 from python_downloader.file import FileName
+
+logger = logging.getLogger(__name__)
 
 
 def get_basename_from_url(url: str) -> str:
@@ -34,7 +35,7 @@ def sanitize_url(url: str) -> str:
     query = quote(query, safe='=&')
 
     # Reconstruct the URL
-    sanitized_url = urlunparse((scheme, netloc, path, params,query , fragments))
+    sanitized_url = urlunparse((scheme, netloc, path, params, query, fragments))
 
     return str(sanitized_url)
 
@@ -52,16 +53,15 @@ def download_file(src: str, base_name: str, domain: str, directory: str, md5_rem
 
         # get remote MD5 checksum from parameter or calculate it
         _md5_remote: str = md5_remote if md5_remote else get_md5_from_url(src)
-        print(_md5_remote)
 
         # get the current file MD5
         md5_file: str = get_md5(f'output/{domain}/{directory}/{base_name}')
-        print(md5_file)
         if md5_file == _md5_remote:
             return base_name
         else:
             file.increase_version()
-            return download_file(src=src, base_name=file.get_filename(), domain=domain, directory=directory, md5_remote=_md5_remote)
+            return download_file(src=src, base_name=file.get_filename(), domain=domain, directory=directory,
+                                 md5_remote=_md5_remote)
 
     return base_name
 
@@ -103,6 +103,7 @@ def find_version_from_file(file_name: str) -> int:
     # if we don't have one, start from 0
     return 0
 
+
 @dataclass
 class URLInfo:
     """
@@ -110,11 +111,10 @@ class URLInfo:
     """
     url: str
     downloaded: bool = False
-    local_url: None|str = None
+    local_url: None | str = None
 
     def set_as_downloaded(self, downloaded: bool = True):
         self.downloaded = downloaded
-
 
     def get_local_url(self) -> str:
         """
@@ -129,7 +129,7 @@ class URLInfo:
 
         if path:
             path_split = path.split("/")
-            return  f'output/{netloc}/{path_split[-1]}.html'
+            return f'output/{netloc}/{path_split[-1]}.html'
 
         raise NotImplementedError(f"Still need to implement the case where {urlparse(self.url)}")
 

@@ -7,7 +7,7 @@ import requests
 import os
 import logging
 
-from python_downloader.utils import get_basename_from_url, sanitize_url, download_file, URLInfo
+from python_downloader.utils import get_basename_from_url, sanitize_url, download_file, URLInfo, is_valid_url
 
 logger = logging.getLogger(__name__)
 
@@ -129,8 +129,12 @@ class GeneralPageDownloader:
         for link in links:
             href = link.get('href')
 
+            if not is_valid_url(href):
+                logger.debug(f"Invalid page href: {href}")
+                continue
             # if there is no link, skip it
-            if not href or href == "#":
+            if not href:
+                logger.debug("Href not found")
                 continue
 
             # If the src is relative make it absolute

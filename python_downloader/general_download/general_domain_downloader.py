@@ -45,6 +45,7 @@ class GeneralDomainDownloader:
                 break
 
             for page_to_download_url, page_to_download_file in links_not_downloaded.items():
+                logger.debug(f"Downloading page: {page_to_download_url}")
                 page = GeneralPageDownloader(page_to_download_file)
 
                 # download the HTML and parse it

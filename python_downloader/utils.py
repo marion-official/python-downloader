@@ -104,6 +104,16 @@ def find_version_from_file(file_name: str) -> int:
     return 0
 
 
+def is_valid_url(url):
+    """
+    Check if a url is valid
+    """
+    try:
+        result = urlparse(url)
+        return all([result.scheme, result.netloc])
+    except ValueError:
+        return False
+
 @dataclass
 class URLInfo:
     """

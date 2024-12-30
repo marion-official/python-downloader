@@ -76,6 +76,7 @@ class GeneralPageDownloader:
 
             # If there is no basename, next
             if not base_name:
+                logger.error(f"no baasename for {src}")
                 continue
 
             # If the src is relative make it absolute
@@ -105,23 +106,30 @@ class GeneralPageDownloader:
         for link in links:
             href = link.get('href')
 
-            if href:
-                # take the name of the file
-                base_name = get_basename_from_url(href)
+            if not href:
+                continue
 
-                # if there is no basename, next
-                if base_name:
-                    if href.startswith('/'):
-                        href = urljoin(f'https://{self.__domain}', href)
+            base_name = get_basename_from_url(href)
 
-                    # if the file is not already exists, download it
-                    if os.path.isfile(f'output/{self.__domain}/css/{base_name}'):
-                        response = requests.get(href)
-                        with open(f'output/{self.__domain}/css/{base_name}', 'wb') as css_file:
-                            css_file.write(response.content)
+            if not base_name:
+                logger.error(f"no baasename for {href}")
+                continue
 
-                    # update link tag to the new file
-                    link['href'] = f'./css/{base_name}'
+            if href.startswith('/'):
+                href = urljoin(f'https://{self.__domain}', href)
+
+            href = sanitize_url(href)
+
+            logger.info(f"Downloading CSS {href}")
+
+            try:
+                file_name = download_file(href, base_name, self.__domain, "css", user_agent=self.user_agent)
+            except HTTPError as e:
+                logger.error(f"Error downloading {href} {e}")
+                continue
+
+            # update link tag to the new file
+            link['href'] = f'./css/{file_name}'
 
     def deal_with_scripts(self):
         """

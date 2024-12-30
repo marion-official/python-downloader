@@ -8,8 +8,12 @@ import logging
 from urllib.parse import urlparse, urlunparse, quote
 from urllib.request import urlretrieve
 from hashlib import md5
+from random import choice
+
+from click import FileError
 
 from python_downloader.file import FileName
+from python_downloader.config import USER_AGENTS_LIST_LOCATION, HTTP_RESPONSE_ACCEPTED
 
 logger = logging.getLogger(__name__)
 
@@ -40,13 +44,29 @@ def sanitize_url(url: str) -> str:
     return str(sanitized_url)
 
 
-def download_file(src: str, base_name: str, domain: str, directory: str, md5_remote: str = "") -> str:
+def download_file(src: str, base_name: str, domain: str, directory: str, md5_remote: str = "",
+                  user_agent: str = "") -> str:
     """
     Download the file handling duplicates
     """
     # if the file not already present, download it
-    if not os.path.isfile(f'output/{domain}/{directory}/{base_name}'):
-        urlretrieve(src, f'output/{domain}/{directory}/{base_name}')
+    filename_local: str = f'output/{domain}/{directory}/{base_name}'
+    if not os.path.isfile(filename_local):
+        headers = {
+            "User-Agent": user_agent
+        }
+        logger.debug(f"urlretrieve({src}, {filename_local}")
+        response = requests.get(src, headers=headers)
+        if response.status_code in HTTP_RESPONSE_ACCEPTED:
+            try:
+                with open(filename_local, "wb") as f:
+                    f.write(response.content)
+            except OSError as e:
+                logger.debug(f"Exception while writing {filename_local}: {e}")
+                raise
+        else:
+            logger.error(f"{src} returned {response.status_code}")
+        # urlretrieve(src, filename_local)
     else:
         # If the file is already present
         file = FileName(base_name)
@@ -55,7 +75,7 @@ def download_file(src: str, base_name: str, domain: str, directory: str, md5_rem
         _md5_remote: str = md5_remote if md5_remote else get_md5_from_url(src)
 
         # get the current file MD5
-        md5_file: str = get_md5(f'output/{domain}/{directory}/{base_name}')
+        md5_file: str = get_md5(filename_local)
         if md5_file == _md5_remote:
             return base_name
         else:
@@ -114,6 +134,7 @@ def is_valid_url(url):
     except ValueError:
         return False
 
+
 @dataclass
 class URLInfo:
     """
@@ -144,3 +165,17 @@ class URLInfo:
         raise NotImplementedError(f"Still need to implement the case where {urlparse(self.url)}")
 
         return f'output/{netloc}/page.html'
+
+
+def get_random_user_agents() -> str:
+    """
+    Returns a random user-agent from our list
+    """
+    try:
+        with open(USER_AGENTS_LIST_LOCATION, 'r') as file:
+            content = file.readlines()
+            user_agent = choice(content)
+            return user_agent.strip()
+    except FileNotFoundError as e:
+        logger.error(f"List file of user-agents not found in {USER_AGENTS_LIST_LOCATION}: {e}")
+        raise

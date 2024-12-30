@@ -7,7 +7,10 @@ import requests
 import os
 import logging
 
-from python_downloader.utils import get_basename_from_url, sanitize_url, download_file, URLInfo, is_valid_url
+from setuptools.package_index import user_agent
+
+from python_downloader.utils import get_basename_from_url, sanitize_url, download_file, URLInfo, is_valid_url, \
+    get_random_user_agents
 
 logger = logging.getLogger(__name__)
 
@@ -25,7 +28,14 @@ class GeneralPageDownloader:
         self.__soap = None
         self.__domain: str | None = None
         self.__scheme: str | None = None
+        self.user_agent: str | None = None
         self.parse_url()
+        self.set_user_agents()
+
+    def set_user_agents(self):
+        if not self.user_agent:
+            self.user_agent = get_random_user_agents()
+            logger.debug(f"User agent: {self.user_agent}")
 
     def parse_url(self) -> None:
         """
@@ -59,7 +69,7 @@ class GeneralPageDownloader:
             if not src:
                 continue
 
-            logger.info(f"Downloading {src}")
+            logger.info(f"Downloading IMG {src}")
 
             # Take the name of the file
             base_name = get_basename_from_url(src)
@@ -76,8 +86,10 @@ class GeneralPageDownloader:
             # Sanitize the URL
             src = sanitize_url(src)
 
+            logger.debug(f"Downloading img file: {src}")
+
             try:
-                file_name = download_file(src, base_name, self.__domain, "img")
+                file_name = download_file(src, base_name, self.__domain, "img", user_agent=self.user_agent)
             except HTTPError as e:
                 logger.error(f"Error downloading {src} {e}")
                 continue

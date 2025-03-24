@@ -32,6 +32,9 @@ class GeneralPageDownloader:
         self.parse_url()
         self.set_user_agents()
 
+    def get_soap(self):
+        return self.__soap
+
     def set_user_agents(self):
         if not self.user_agent:
             self.user_agent = get_random_user_agents()
@@ -54,7 +57,7 @@ class GeneralPageDownloader:
         This method is to download the html and process it
         """
         self.__html_response = requests.get(self.__url_parsed.geturl())
-        self.__soap = BeautifulSoup(self.__html_response.content, 'html.parser')
+        self.__soap = BeautifulSoup(self.__html_response.content, 'html.parser',from_encoding='utf-8')
         return self.__soap
 
     def deal_with_tag_img(self) -> None:
@@ -171,13 +174,9 @@ class GeneralPageDownloader:
         Write the html page on disk
         """
 
-        file_name = f'output/{self.__domain}/page.html'
-
-        # if we have already a local address, use it
         if self.__url_info.local_url:
             file_name = self.__url_info.local_url
         else:
-            # else find one
             file_name = self.__url_info.get_local_url()
 
         with open(file_name, 'w') as index_file:

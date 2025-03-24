@@ -5,8 +5,13 @@ from urllib.parse import urlparse, ParseResult
 import logging
 
 from python_downloader.general_download import GeneralDomainDownloader
+from python_downloader.stackoverflow import StackoverflowDomainDownloader
 
 logger = logging.getLogger(__name__)
+
+known_domains: dict[str: any] = {
+    "stackoverflow.com": StackoverflowDomainDownloader
+}
 
 
 class PythonDownloader:
@@ -39,7 +44,9 @@ class PythonDownloader:
                 into separate directories.
                 """)
         parser.add_argument("url")
-        parser.add_argument("-d", "--depth", default=2, type=int)
+        parser.add_argument("-d", "--depth", default=2, type=int, help="Depth of how many pages to download")
+        parser.add_argument("-g", "--general", action='store_true', help="Force the domain to be treated as generic")
+
         self.arguments = parser.parse_args(self.argv)
 
     def set_variables(self):
@@ -48,10 +55,15 @@ class PythonDownloader:
         self.url_parsed = urlparse(self.url)
 
     def download_domain(self):
-        home_page = GeneralDomainDownloader(self.url_parsed, self.configs)
-        # print(f"Working on the domain:  {self.url_parsed.netloc}")
         logger.info(f"Working on the domain:  {self.url_parsed.netloc}")
 
-        home_page.create_dir()
+        if self.url_parsed.netloc in known_domains and not self.arguments.general:
+            logger.debug(f"Recognised domain {self.url_parsed.netloc}")
+            page = known_domains[self.url_parsed.netloc](self.url_parsed, self.configs)
+        else:
+            logger.debug("Using general domain downloader")
+            page = GeneralDomainDownloader(self.url_parsed, self.configs)
 
-        home_page.download_content()
+        page.create_dir()
+
+        page.download_content()

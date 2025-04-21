@@ -55,7 +55,7 @@ def download_file(src: str, base_name: str, domain: str, directory: str, md5_rem
         headers = {
             "User-Agent": user_agent
         }
-        logger.debug(f"urlretrieve({src}, {filename_local}")
+        logger.debug(f"retrieve({src}, {filename_local}")
         response = requests.get(src, headers=headers)
         if response.status_code in HTTP_RESPONSE_ACCEPTED:
             try:
@@ -151,20 +151,22 @@ class URLInfo:
         """
         Find the name of the file by the url
         """
-        # if we have already the url, use it
         if self.local_url:
             return self.local_url
 
-        # Parse the URL
         scheme, netloc, path, params, query, fragments = urlparse(self.url)
 
+        base_name = None
         if path:
             path_split = path.split("/")
-            return f'output/{netloc}/{path_split[-1]}.html'
+            base_name = path_split[-1]
 
-        raise NotImplementedError(f"Still need to implement the case where {urlparse(self.url)}")
+        elif netloc:
+            base_name = netloc
+        else:
+            raise NotImplementedError(f"Still need to implement the case where url {self.url}: {urlparse(self.url)}")
 
-        return f'output/{netloc}/page.html'
+        return f'output/{netloc}/{base_name}.html'
 
 
 def get_random_user_agents() -> str:

@@ -4,7 +4,7 @@ import os
 import logging
 
 from .general_page_downloader import GeneralPageDownloader
-from python_downloader.utils import URLInfo
+from python_downloader.urlinfo import URLInfo
 
 logger = logging.getLogger(__name__)
 

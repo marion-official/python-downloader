@@ -3,7 +3,7 @@ import logging
 from python_downloader.general_download import GeneralDomainDownloader
 from python_downloader.stackoverflow.stackoverflow_page_downloader import StackoverflowPageDownload
 
-from python_downloader.utils import URLInfo
+from python_downloader.urlinfo import URLInfo
 
 logger = logging.getLogger(__name__)
 

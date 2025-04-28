@@ -1,15 +1,14 @@
 from __future__ import annotations
 
+import logging
 from urllib.error import HTTPError
 from urllib.parse import urlparse, urljoin
-from bs4 import BeautifulSoup
+
 import requests
-import os
-import logging
+from bs4 import BeautifulSoup
 
-from setuptools.package_index import user_agent
-
-from python_downloader.utils import get_basename_from_url, sanitize_url, download_file, URLInfo, is_valid_url, \
+from python_downloader.urlinfo import URLInfo
+from python_downloader.utils import get_basename_from_url, sanitize_url, download_file, is_valid_url, \
     get_random_user_agents
 
 logger = logging.getLogger(__name__)
@@ -21,7 +20,7 @@ class GeneralPageDownloader:
     """
 
     def __init__(self, url_info: URLInfo) -> None:
-        self.__url_info: URLInfo = url_info
+        self.url_info: URLInfo = url_info
         self.__url: str = url_info.url
         self.__url_parsed = urlparse(self.__url)
         self.__html_response = None
@@ -57,7 +56,7 @@ class GeneralPageDownloader:
         This method is to download the html and process it
         """
         self.__html_response = requests.get(self.__url_parsed.geturl())
-        self.__soap = BeautifulSoup(self.__html_response.content, 'html.parser',from_encoding='utf-8')
+        self.__soap = BeautifulSoup(self.__html_response.content, 'html.parser', from_encoding='utf-8')
         return self.__soap
 
     def deal_with_tag_img(self) -> None:
@@ -174,10 +173,7 @@ class GeneralPageDownloader:
         Write the html page on disk
         """
 
-        if self.__url_info.local_url:
-            file_name = self.__url_info.local_url
-        else:
-            file_name = self.__url_info.get_local_url()
+        file_name = self.url_info.get_local_url()
 
         with open(file_name, 'w') as index_file:
             index_file.write(self.__soap.prettify())

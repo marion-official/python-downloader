@@ -1,16 +1,12 @@
 from __future__ import annotations
 
 import os
-from dataclasses import dataclass
 import re
 import requests
 import logging
 from urllib.parse import urlparse, urlunparse, quote
-from urllib.request import urlretrieve
 from hashlib import md5
 from random import choice
-
-from click import FileError
 
 from python_downloader.file import FileName
 from python_downloader.config import USER_AGENTS_LIST_LOCATION, HTTP_RESPONSE_ACCEPTED
@@ -133,40 +129,6 @@ def is_valid_url(url):
         return all([result.scheme, result.netloc])
     except ValueError:
         return False
-
-
-@dataclass
-class URLInfo:
-    """
-    Dataclass dedicated to the single page URL to download
-    """
-    url: str
-    downloaded: bool = False
-    local_url: None | str = None
-
-    def set_as_downloaded(self, downloaded: bool = True):
-        self.downloaded = downloaded
-
-    def get_local_url(self) -> str:
-        """
-        Find the name of the file by the url
-        """
-        if self.local_url:
-            return self.local_url
-
-        scheme, netloc, path, params, query, fragments = urlparse(self.url)
-
-        base_name = None
-        if path:
-            path_split = path.split("/")
-            base_name = path_split[-1]
-
-        elif netloc:
-            base_name = netloc
-        else:
-            raise NotImplementedError(f"Still need to implement the case where url {self.url}: {urlparse(self.url)}")
-
-        return f'output/{netloc}/{base_name}.html'
 
 
 def get_random_user_agents() -> str:

@@ -11,35 +11,40 @@ class URLInfo:
 
     url: str The original URL of the page
     downloaded: bool True if the URL has been downloaded
-    local_url: str The local URL on disk for the page
+    local_base_dir: str The local directory where the URL will be downloaded
+    local_name: str The local name of the URL being downloaded
     url_parsed: str The parsed URL from the url
     """
     url: str
     downloaded: bool = False
-    local_url: None|str = None
+    local_base_dir: str = 'output'
+    local_name: str | None = None
     url_parsed: ParseResult = None
+    _local_url: str | None = None
 
     def set_as_downloaded(self, downloaded: bool = True):
         self.downloaded = downloaded
 
-    def get_local_url(self) -> str:
+    def get_local_url(self, extension: str = 'html') -> str:
         """
         Find the name of the file by the url
         """
-        if self.local_url:
-            print("already written", self.local_url)
-            return self.local_url
+        if self._local_url:
+            print("already written", self._local_url)
+            return f"{self._local_url}.{extension}"
 
         self.url_parsed = urlparse(self.url)
 
-        base_name = None
-        if self.url_parsed.path:
-            path_split = self.url_parsed.path.split("/")
-            base_name = path_split[-1]
+        if not self.local_name:
+            if self.url_parsed.path:
+                path_split = self.url_parsed.path.split("/")
+                self.local_name = path_split[-1]
 
-        elif self.url_parsed.netloc:
-            base_name = self.url_parsed.netloc
-        else:
-            raise NotImplementedError(f"Still need to implement the case where url {self.url}: {urlparse(self.url)}")
+            elif self.url_parsed.netloc:
+                self.local_name = self.url_parsed.netloc
+            else:
+                raise NotImplementedError(
+                    f"Still need to implement the case where url {self.url}: {urlparse(self.url)}")
 
-        return f'output/{self.url_parsed.netloc}/{base_name}.html'
+        self._local_url = f'{self.local_base_dir}/{self.url_parsed.netloc}/{self.local_name}'
+        return f"{self._local_url}.{extension}"

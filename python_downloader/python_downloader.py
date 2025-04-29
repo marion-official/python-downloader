@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 import argparse
-from urllib.parse import urlparse, ParseResult
 import logging
+from urllib.parse import urlparse, ParseResult
 
 from python_downloader.general_download import GeneralDomainDownloader
 from python_downloader.stackoverflow import StackoverflowDomainDownloader

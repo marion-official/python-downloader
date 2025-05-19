@@ -1,12 +1,13 @@
 from __future__ import annotations
 
-import os
 import logging
+import os
 
+from python_downloader.urlinfo import URLInfo
 from .general_page_downloader import GeneralPageDownloader
-from python_downloader.utils import URLInfo
 
 logger = logging.getLogger(__name__)
+
 
 class GeneralDomainDownloader:
     """
@@ -26,8 +27,7 @@ class GeneralDomainDownloader:
         Initialise the list of links to download with the index
         """
         self.hyperlinks_in_domain[self.__url_parsed.geturl()] = (
-            URLInfo(self.__url_parsed.geturl(),
-                    local_url=f'output/{self.__url_parsed.netloc}/index.html'))
+            URLInfo(url=self.__url_parsed.geturl(), local_name='index'))
 
     def download_content(self) -> None:
         """
